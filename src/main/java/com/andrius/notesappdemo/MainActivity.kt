@@ -22,9 +22,15 @@ class MainActivity : AppCompatActivity()
 
     val adapter = getAdapter(this, Supplier.userNotes)
 
+    val KEY_NEW_NOTE = "user_note"
+    val KEY_ID = "id_note"
+    val KEY_EDITED_NOTE = "edit_note"
+    val KEY_NOTE_POS = "note_position"
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
 
         btnAdd.setOnClickListener()
@@ -43,32 +49,42 @@ class MainActivity : AppCompatActivity()
         registerForContextMenu(recyclerView)
 
 
-
-
+        // loading and saving notes
+        //-------------------------------------------------------------------------------------------
         val notesDbHelper = NotesDbHelper(this)
         val db = notesDbHelper.writableDatabase
 
 
-        var newRowId: Long = 0                                  // for the database
-        val noteString = receiveNoteBundle()
+        var newRowId: Long = 0                                      // for the database
+        val noteBundle = receiveNoteBundle()
 
-        if(!noteString.isNullOrEmpty())                         // if a bundle is received
+
+        if(noteBundle != null)                                      // if a bundle is received
         {
 
-
-            val values = ContentValues().apply()
+            if(noteBundle.key.equals(KEY_NEW_NOTE))                 // add a new note to the db
             {
-                put(NotesContract.NoteEntry.COLUMN_NAME_TITLE, noteString)
+                val values = ContentValues().apply()
+                {
+                    put(NotesContract.NoteEntry.COLUMN_NAME_TITLE, noteBundle.text)
+                }
+
+                getNotesFromDb(db)
+
+                newRowId = db.insert(NotesContract.NoteEntry.TABLE_NAME, null, values)
+                adapter.notes.add(Note(noteBundle.text, newRowId))
+
+                db.close()
+            }
+            else if(noteBundle.key.equals(KEY_EDITED_NOTE))           // edit a note in the db
+            {
+                db.execSQL("UPDATE ${NotesContract.NoteEntry.TABLE_NAME} SET ${NotesContract.NoteEntry.COLUMN_NAME_TITLE} = '${noteBundle.text}' WHERE ${BaseColumns._ID} = ${noteBundle.dbId}")
+                db.close()
+
+                adapter.notes.set(noteBundle.position.toInt(), Note(noteBundle.text))
+                adapter.notifyDataSetChanged()
 
             }
-
-            getNotesFromDb(db)
-
-            newRowId = db.insert(NotesContract.NoteEntry.TABLE_NAME, null, values)
-            adapter.notes.add(Note(noteString, newRowId))
-
-
-            db.close()
         }
         else                                                    // if not, then load notes from db
         {
@@ -81,6 +97,7 @@ class MainActivity : AppCompatActivity()
 
             db.close()
         }
+        //------------------------------------------------------------------------------------------
     }
 
     fun noteLongClicked(note: Note) : Boolean
@@ -112,6 +129,12 @@ class MainActivity : AppCompatActivity()
             }
             R.id.option_edit ->
             {
+                val intent = Intent(this, EditNoteActivity::class.java)
+                intent.putExtra(KEY_EDITED_NOTE, adapter.notes[selectedNotePosition].text)
+                intent.putExtra(KEY_NOTE_POS, selectedNotePosition.toString())
+                intent.putExtra(KEY_ID, adapter.notes[selectedNotePosition].dbId.toString())
+
+                startActivity(intent)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -149,16 +172,30 @@ class MainActivity : AppCompatActivity()
     }
 
 
-    fun receiveNoteBundle() : String?
+    fun receiveNoteBundle() : NoteBundle?
     {
         val bundle: Bundle? = intent.extras
 
         if(bundle != null)
         {
-            val tempNote = bundle.getString("user_note")
-            Toast.makeText(this, tempNote, Toast.LENGTH_SHORT).show()
+            if(!bundle.getString(KEY_NEW_NOTE).isNullOrEmpty())
+            {
+                val noteText = bundle.getString(KEY_NEW_NOTE)!!
+                val key = KEY_NEW_NOTE
 
-            return tempNote
+                return NoteBundle(key, noteText)
+            }
+            else if(!bundle.getString(KEY_EDITED_NOTE).isNullOrEmpty())
+            {
+                val noteText = bundle.getString(KEY_EDITED_NOTE)!!
+                val id = bundle.getString(KEY_ID)!!
+                val key = KEY_EDITED_NOTE
+                val position = bundle.getString(KEY_NOTE_POS)!!
+
+                return NoteBundle(key, noteText, id, position)
+            }
+            else
+                return null
         }
         else
             return null

@@ -7,7 +7,7 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/editNote"
+        android:id="@+id/newNoteText"
         android:layout_width="353dp"
         android:layout_height="260dp"
         android:layout_marginStart="8dp"

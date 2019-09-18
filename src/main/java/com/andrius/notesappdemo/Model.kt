@@ -20,6 +20,19 @@ data class Note (val text: String)
     }
 }
 
+data class NoteBundle(val key: String, val text: String)
+{
+    var dbId: String = ""
+    var position: String = ""
+
+    constructor(key: String, text: String, dbId: String, position: String) : this(key, text)
+    {
+        this.dbId = dbId
+        this.position = position
+    }
+
+}
+
 object Supplier
 {
     var userNotes: MutableList<Note> = mutableListOf<Note>()
