@@ -2,7 +2,7 @@ package com.andrius.notesappdemo
 
 import android.view.View
 
-data class Note (val text: String)
+data class Note (var text: String)
 {
     var dbId: Long = 0
     var position: Int = 0

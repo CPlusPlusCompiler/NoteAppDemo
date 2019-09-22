@@ -10,8 +10,18 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.list_item_note.view.*
 import kotlin.reflect.KClass
 
-class NotesAdapter(val context: Context, var notes: MutableList<Note>, val clickListener: (Note) -> Boolean) : RecyclerView.Adapter<MyViewHolder>()
+class NotesAdapter (var context: Context, var notes: MutableList<Note>, val longClickListener: (Note) -> Boolean) : RecyclerView.Adapter<MyViewHolder>()
 {
+
+    var widgetEnabled: Boolean = false
+    lateinit var clickListener: (Note) -> Unit
+
+    constructor(context: Context, notes: MutableList<Note>, longClickListener: (Note) -> Boolean, clickListener: (Note) -> Unit) : this(context, notes, longClickListener)
+    {
+        widgetEnabled = true
+        this.clickListener = clickListener
+    }
+
 
     lateinit var myViewHolder: MyViewHolder
     lateinit var myViewHolderObject: KClass<out MyViewHolder>
@@ -36,8 +46,14 @@ class NotesAdapter(val context: Context, var notes: MutableList<Note>, val click
     override fun onBindViewHolder(holder: MyViewHolder, position: Int)
     {
         val note = notes[position]
-        (holder as MyViewHolder).setData(note, position, clickListener)
-
+        if(widgetEnabled)
+        {
+            (holder as MyViewHolder).setDataForWidget(note, position, clickListener)
+        }
+        else
+        {
+            (holder as MyViewHolder).setData(note, position, longClickListener)
+        }
         //myViewHolder = holder
         //myViewHolderObject = holder::class
 //
@@ -68,7 +84,7 @@ class NotesAdapter(val context: Context, var notes: MutableList<Note>, val click
 
 }
 
-class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+open class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 {
 
     lateinit var currentNote: Note
@@ -83,8 +99,20 @@ class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
         note.itemView = itemView
 
         itemView.setOnLongClickListener{clickListener(note)}
+
+
+
     }
 
+    fun setDataForWidget(note: Note?, position: Int, clickListener: (Note) -> Unit)
+    {
+        currentNote = note!!
+        itemView.noteText.text = note!!.text
+        note.position = position
+        note.itemView = itemView
+
+        itemView.setOnClickListener{clickListener(note)}
+    }
 
 
 }

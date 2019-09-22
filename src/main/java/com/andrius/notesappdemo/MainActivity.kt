@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity()
     val KEY_ID = "id_note"
     val KEY_EDITED_NOTE = "edit_note"
     val KEY_NOTE_POS = "note_position"
+    val KEY_SELECT_NOTE = "note_select"
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -85,6 +86,11 @@ class MainActivity : AppCompatActivity()
                 adapter.notifyDataSetChanged()
 
             }
+            else if(noteBundle.key.equals(KEY_SELECT_NOTE))
+            {
+                Toast.makeText(this, "penis", Toast.LENGTH_SHORT).show()
+                adapter.notes[0].text = "nigga"
+            }
         }
         else                                                    // if not, then load notes from db
         {
@@ -134,6 +140,7 @@ class MainActivity : AppCompatActivity()
                 intent.putExtra(KEY_NOTE_POS, selectedNotePosition.toString())
                 intent.putExtra(KEY_ID, adapter.notes[selectedNotePosition].dbId.toString())
 
+
                 startActivity(intent)
                 true
             }
@@ -152,7 +159,7 @@ class MainActivity : AppCompatActivity()
     fun getNotesFromDb(db: SQLiteDatabase) : MutableList<Note>
     {
         val count = DatabaseUtils.queryNumEntries(db, NotesContract.NoteEntry.TABLE_NAME)
-        Toast.makeText(this, count.toString(), Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this, count.toString(), Toast.LENGTH_SHORT).show()
 
         val cursor = db.rawQuery("SELECT * FROM ${NotesContract.NoteEntry.TABLE_NAME}", null)
 
@@ -194,8 +201,16 @@ class MainActivity : AppCompatActivity()
 
                 return NoteBundle(key, noteText, id, position)
             }
+            else if(!bundle.getString(KEY_SELECT_NOTE).isNullOrEmpty())
+            {
+                val noteText = bundle.getString(KEY_SELECT_NOTE)!!
+                val key = KEY_SELECT_NOTE
+
+                return NoteBundle(key, noteText)
+            }
             else
                 return null
+
         }
         else
             return null
