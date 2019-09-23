@@ -1,6 +1,7 @@
 package com.andrius.notesappdemo
 
 import android.content.Context
+import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
@@ -43,5 +44,27 @@ class NotesDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
     {
         const val DATABASE_VERSION = 1
         const val DATABASE_NAME = "DbNotes.db"
+
+        fun getNotesFromDb(db: SQLiteDatabase) : MutableList<Note>
+        {
+            val count = DatabaseUtils.queryNumEntries(db, NotesContract.NoteEntry.TABLE_NAME)
+            //Toast.makeText(this, count.toString(), Toast.LENGTH_SHORT).show()
+
+            val cursor = db.rawQuery("SELECT * FROM ${NotesContract.NoteEntry.TABLE_NAME}", null)
+
+            val noteContents = mutableListOf<Note>()
+
+            with(cursor)
+            {
+                while(moveToNext())
+                {
+                    val noteContent = cursor.getString(cursor.getColumnIndex(NotesContract.NoteEntry.COLUMN_NAME_TITLE))
+                    val noteId = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))
+                    noteContents.add(Note(noteContent, noteId))
+                }
+            }
+
+            return noteContents
+        }
     }
 }

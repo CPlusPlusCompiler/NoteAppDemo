@@ -4,10 +4,7 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import android.database.DatabaseUtils
-import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
-import android.provider.BaseColumns
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -44,7 +41,7 @@ class SingleNoteWidgetConfigureActivity : Activity()
         val layoutManager = GridLayoutManager(this, 2)
         recyclerView.layoutManager = layoutManager
 
-        val notes = getNotesFromDb(db)
+        val notes = NotesDbHelper.getNotesFromDb(db)
         val adapter = NotesAdapter(this, notes, {noteLongClicked()}, {note: Note -> noteClicked(note) })
         recyclerView.adapter = adapter
         
@@ -81,28 +78,6 @@ class SingleNoteWidgetConfigureActivity : Activity()
     fun noteLongClicked() : Boolean
     {
         return false
-    }
-
-    fun getNotesFromDb(db: SQLiteDatabase) : MutableList<Note>
-    {
-        val count = DatabaseUtils.queryNumEntries(db, NotesContract.NoteEntry.TABLE_NAME)
-        //Toast.makeText(this, count.toString(), Toast.LENGTH_SHORT).show()
-
-        val cursor = db.rawQuery("SELECT * FROM ${NotesContract.NoteEntry.TABLE_NAME}", null)
-
-        val noteContents = mutableListOf<Note>()
-
-        with(cursor)
-        {
-            while(moveToNext())
-            {
-                val noteContent = cursor.getString(cursor.getColumnIndex(NotesContract.NoteEntry.COLUMN_NAME_TITLE))
-                val noteId = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))
-                noteContents.add(Note(noteContent, noteId))
-            }
-        }
-
-        return noteContents
     }
 
     companion object

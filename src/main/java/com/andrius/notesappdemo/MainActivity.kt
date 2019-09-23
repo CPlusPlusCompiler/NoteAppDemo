@@ -3,8 +3,6 @@ package com.andrius.notesappdemo
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.database.DatabaseUtils
-import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import android.provider.BaseColumns
 import android.view.ContextMenu
@@ -70,7 +68,6 @@ class MainActivity : AppCompatActivity()
                     put(NotesContract.NoteEntry.COLUMN_NAME_TITLE, noteBundle.text)
                 }
 
-                getNotesFromDb(db)
 
                 newRowId = db.insert(NotesContract.NoteEntry.TABLE_NAME, null, values)
                 adapter.notes.add(Note(noteBundle.text, newRowId))
@@ -88,13 +85,12 @@ class MainActivity : AppCompatActivity()
             }
             else if(noteBundle.key.equals(KEY_SELECT_NOTE))
             {
-                Toast.makeText(this, "penis", Toast.LENGTH_SHORT).show()
-                adapter.notes[0].text = "nigga"
+
             }
         }
         else                                                    // if not, then load notes from db
         {
-            val tempNotes = getNotesFromDb(db)
+            val tempNotes = NotesDbHelper.getNotesFromDb(db)
 
             for(i in tempNotes)
             {
@@ -153,29 +149,6 @@ class MainActivity : AppCompatActivity()
     {
         val tempAdapter = NotesAdapter(context, notes, {note: Note -> noteLongClicked(note)})
         return tempAdapter
-    }
-
-
-    fun getNotesFromDb(db: SQLiteDatabase) : MutableList<Note>
-    {
-        val count = DatabaseUtils.queryNumEntries(db, NotesContract.NoteEntry.TABLE_NAME)
-        //Toast.makeText(this, count.toString(), Toast.LENGTH_SHORT).show()
-
-        val cursor = db.rawQuery("SELECT * FROM ${NotesContract.NoteEntry.TABLE_NAME}", null)
-
-        val noteContents = mutableListOf<Note>()
-
-        with(cursor)
-        {
-            while(moveToNext())
-            {
-                val noteContent = cursor.getString(cursor.getColumnIndex(NotesContract.NoteEntry.COLUMN_NAME_TITLE))
-                val noteId = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))
-                noteContents.add(Note(noteContent, noteId))
-            }
-        }
-
-        return noteContents
     }
 
 
