@@ -48,7 +48,7 @@ class NotesDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         fun getNotesFromDb(db: SQLiteDatabase) : MutableList<Note>
         {
             val count = DatabaseUtils.queryNumEntries(db, NotesContract.NoteEntry.TABLE_NAME)
-            //Toast.makeText(this, count.toString(), Toast.LENGTH_SHORT).show()
+
 
             val cursor = db.rawQuery("SELECT * FROM ${NotesContract.NoteEntry.TABLE_NAME}", null)
 

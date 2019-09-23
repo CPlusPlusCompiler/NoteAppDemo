@@ -8,7 +8,6 @@ import android.provider.BaseColumns
 import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
@@ -60,32 +59,28 @@ class MainActivity : AppCompatActivity()
 
         if(noteBundle != null)                                      // if a bundle is received
         {
-
-            if(noteBundle.key.equals(KEY_NEW_NOTE))                 // add a new note to the db
+            when(noteBundle.key)
             {
-                val values = ContentValues().apply()
+                KEY_NEW_NOTE ->                                     // add a new note to the db
                 {
-                    put(NotesContract.NoteEntry.COLUMN_NAME_TITLE, noteBundle.text)
+                    val values = ContentValues().apply()
+                    {
+                        put(NotesContract.NoteEntry.COLUMN_NAME_TITLE, noteBundle.text)
+                    }
+
+                    newRowId = db.insert(NotesContract.NoteEntry.TABLE_NAME, null, values)
+                    adapter.notes.add(Note(noteBundle.text, newRowId))
+
+                    db.close()
                 }
+                KEY_EDITED_NOTE->                                   // edit a note in the db
+                {
+                    db.execSQL("UPDATE ${NotesContract.NoteEntry.TABLE_NAME} SET ${NotesContract.NoteEntry.COLUMN_NAME_TITLE} = '${noteBundle.text}' WHERE ${BaseColumns._ID} = ${noteBundle.dbId}")
+                    db.close()
 
-
-                newRowId = db.insert(NotesContract.NoteEntry.TABLE_NAME, null, values)
-                adapter.notes.add(Note(noteBundle.text, newRowId))
-
-                db.close()
-            }
-            else if(noteBundle.key.equals(KEY_EDITED_NOTE))           // edit a note in the db
-            {
-                db.execSQL("UPDATE ${NotesContract.NoteEntry.TABLE_NAME} SET ${NotesContract.NoteEntry.COLUMN_NAME_TITLE} = '${noteBundle.text}' WHERE ${BaseColumns._ID} = ${noteBundle.dbId}")
-                db.close()
-
-                adapter.notes.set(noteBundle.position.toInt(), Note(noteBundle.text))
-                adapter.notifyDataSetChanged()
-
-            }
-            else if(noteBundle.key.equals(KEY_SELECT_NOTE))
-            {
-
+                    adapter.notes.set(noteBundle.position.toInt(), Note(noteBundle.text))
+                    adapter.notifyDataSetChanged()
+                }
             }
         }
         else                                                    // if not, then load notes from db
@@ -104,7 +99,6 @@ class MainActivity : AppCompatActivity()
 
     fun noteLongClicked(note: Note) : Boolean
     {
-        Toast.makeText(this, "note database id: " + note.dbId, Toast.LENGTH_SHORT).show()
         selectedNotePosition = note.position
         note.itemView.showContextMenu()
         return true
@@ -158,6 +152,7 @@ class MainActivity : AppCompatActivity()
 
         if(bundle != null)
         {
+
             if(!bundle.getString(KEY_NEW_NOTE).isNullOrEmpty())
             {
                 val noteText = bundle.getString(KEY_NEW_NOTE)!!

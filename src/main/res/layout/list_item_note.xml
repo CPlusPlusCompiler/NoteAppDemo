@@ -8,13 +8,13 @@
     android:layout_marginTop="5dp"
     android:layout_marginRight="5dp"
     android:longClickable="true"
-    card_view:cardCornerRadius="5dp">
+    android:layout_margin="@dimen/cardview_compat_inset_shadow">
 
 
     <FrameLayout
         android:layout_width="4dp"
         android:layout_height="match_parent"
-        android:background="#000000" />
+        android:background="@color/colorPrimary" />
 
     <TextView
         android:id="@+id/noteText"
@@ -22,5 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:text="TextView" />
+        android:text="TextView"
+        android:textSize="18sp" />
+
 </com.google.android.material.card.MaterialCardView>

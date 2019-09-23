@@ -54,9 +54,7 @@ class NotesAdapter (var context: Context, var notes: MutableList<Note>, val long
         {
             (holder as MyViewHolder).setData(note, position, longClickListener)
         }
-        //myViewHolder = holder
-        //myViewHolderObject = holder::class
-//
+
     }
 
     override fun getItemId(position: Int): Long {
@@ -71,7 +69,7 @@ class NotesAdapter (var context: Context, var notes: MutableList<Note>, val long
 
     fun deleteNote(position: Int)
     {
-        //Toast.makeText(this, selectedNoteId.toString(), Toast.LENGTH_SHORT).show()
+
 
         val tempDb = notesDbHelper.writableDatabase
         val id = MyViewHolder::class
@@ -99,8 +97,6 @@ open class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
         note.itemView = itemView
 
         itemView.setOnLongClickListener{clickListener(note)}
-
-
 
     }
 

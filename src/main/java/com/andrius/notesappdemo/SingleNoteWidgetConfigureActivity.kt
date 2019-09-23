@@ -52,7 +52,7 @@ class SingleNoteWidgetConfigureActivity : Activity()
             return
         }
 
-        //mAppWidgetText.setText(loadTitlePref(this@SingleNoteWidgetConfigureActivity, mAppWidgetId))
+
     }
 
     fun noteClicked(note: Note)

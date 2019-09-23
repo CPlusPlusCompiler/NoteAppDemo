@@ -36,7 +36,6 @@ class EditNoteActivity : AppCompatActivity()
 
                 editNote.setText(text)
 
-
                 btnSaveNote.setOnClickListener()
                 {
                     text = editNote.text.toString()
@@ -51,10 +50,6 @@ class EditNoteActivity : AppCompatActivity()
 
             }
         }
-
-
-
-
     }
 
     fun receiveNoteBundle() : NoteBundle?
