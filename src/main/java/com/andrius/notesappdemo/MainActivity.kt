@@ -3,14 +3,23 @@ package com.andrius.notesappdemo
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.database.sqlite.SQLiteDatabase
+import android.net.Uri
 import android.os.Bundle
 import android.provider.BaseColumns
 import android.view.ContextMenu
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.firebase.storage.FileDownloadTask
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.UploadTask
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
 
 
 class MainActivity : AppCompatActivity()
@@ -25,11 +34,30 @@ class MainActivity : AppCompatActivity()
     val KEY_NOTE_POS = "note_position"
     val KEY_SELECT_NOTE = "note_select"
 
+    val FILE_PATH_WITH_NAME = "data/data/com.andrius.notesappdemo/databases/DbNotes.db"
+    val FILE_PATH = "data/data/com.andrius.notesappdemo/databases"
+
+
+    lateinit var file: Uri
+    lateinit var uploadTask: UploadTask
+    lateinit var dbFileRef: StorageReference
+    lateinit var storage: FirebaseStorage
+
+    lateinit var db: SQLiteDatabase
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
+
+        //storageReference = FirebaseStorage.getInstance().getReference()
+
+        //val file = Uri.fromFile(File("data/data/com.andrius.notesappdemo/databases/DbNotes.db"))
+
+        storage = FirebaseStorage.getInstance()
+
+
 
         btnAdd.setOnClickListener()
         {
@@ -50,7 +78,7 @@ class MainActivity : AppCompatActivity()
         // loading and saving notes
         //-------------------------------------------------------------------------------------------
         val notesDbHelper = NotesDbHelper(this)
-        val db = notesDbHelper.writableDatabase
+        db = notesDbHelper.writableDatabase
 
 
         var newRowId: Long = 0                                      // for the database
@@ -104,6 +132,106 @@ class MainActivity : AppCompatActivity()
         return true
     }
 
+    fun onUploadFailure(e: Exception)
+    {
+        Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show()
+    }
+
+    fun onUploadSuccess(task: UploadTask.TaskSnapshot)
+    {
+
+        Toast.makeText(this, "Upload success!", Toast.LENGTH_SHORT).show()
+    }
+
+    fun onDownloadFailure(e: Exception)
+    {
+        Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show()
+    }
+
+    fun onDownloadSuccess(task: FileDownloadTask.TaskSnapshot)
+    {
+
+
+        Toast.makeText(this, "Restore success", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean
+    {
+        menuInflater.inflate(R.menu.action_bar_menu, menu)
+        return true
+        //return super.onCreateOptionsMenu(menu)
+
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean
+    {
+        return when(item.itemId)
+        {
+            R.id.menu_back_up ->
+            {
+
+                var storageRef = storage.reference
+
+                val dbRef = storageRef.child("DbNotes.db")
+                dbFileRef = storageRef.child("data/DbNotes.db")
+
+                file = Uri.fromFile(File(FILE_PATH_WITH_NAME))
+                uploadTask = dbFileRef.putFile(file)
+
+                uploadTask.addOnFailureListener()
+                {
+                    onUploadFailure(it)
+                }
+                uploadTask.addOnSuccessListener()
+                {
+                    onUploadSuccess(it)
+                }
+
+                true
+            }
+            R.id.menu_restore ->
+            {
+                val storageRef = storage.reference
+
+                val pathRef = storageRef.child("data/DbNotes.db")
+                val gsRef = storageRef.child("gs://bucket/data/DbNotes.db")
+
+                dbFileRef = storageRef.child("data/DbNotes.db")
+                val localFile = File(FILE_PATH, "DbNotes.db")
+
+
+                dbFileRef.getFile(localFile).addOnSuccessListener()
+                {
+                    onDownloadSuccess(it)
+
+                    adapter.notes.clear()
+                    db = NotesDbHelper(this).writableDatabase
+
+                    val tempNotes = NotesDbHelper.getNotesFromDb(db)
+
+                    for(i in tempNotes)
+                    {
+                        adapter.notes.add(i)
+                    }
+
+                    db.close()
+                    adapter.notifyDataSetChanged()
+
+                }
+                    .addOnFailureListener()
+                    {
+                        onDownloadFailure(it)
+                    }
+
+                true
+            }
+            else ->
+                super.onOptionsItemSelected(item)
+        }
+
+
+    }
 
     override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?)
     {
