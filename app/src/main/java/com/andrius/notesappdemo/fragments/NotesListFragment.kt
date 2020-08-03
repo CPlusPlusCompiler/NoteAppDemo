@@ -14,13 +14,11 @@ import com.andrius.notesappdemo.NotesViewModel
 import com.andrius.notesappdemo.R
 import com.andrius.notesappdemo.adapters.NotesAdapter
 import com.andrius.notesappdemo.models.Note
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_notes.*
 
 class NotesListFragment: Fragment() {
 
     private lateinit var viewModel: NotesViewModel
-    private lateinit var btnAdd: FloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -76,9 +76,7 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
                 notesObservable.value?.remove(note.id)
                 notesObservable.value = notesObservable.value
             }
-
         }
-
     }
 
 }

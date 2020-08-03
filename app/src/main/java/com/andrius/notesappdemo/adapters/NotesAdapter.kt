@@ -1,8 +1,6 @@
 package com.andrius.notesappdemo.adapters
 
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
-import android.provider.BaseColumns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -59,6 +57,10 @@ class NotesAdapter (var notes: MutableList<Note>, val callback: INote?, var cont
                 true
             }
 
+            holder.llNote.setOnClickListener {
+                callback?.onEditPressed(note, position)
+            }
+
             menu.setOnMenuItemClickListener { menuItem ->
 
                 when(menuItem.itemId) {
@@ -90,7 +92,7 @@ open class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     fun setDataForWidget(note: Note?, position: Int, clickListener: (Note) -> Unit) {
         currentNote = note!!
-        itemView.tv_note_text.text = note!!.text
+        itemView.tv_note_text.text = note.text
         note.sequence = position
 
         itemView.setOnClickListener{clickListener(note)}

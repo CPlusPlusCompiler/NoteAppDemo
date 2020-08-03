@@ -1,6 +1,5 @@
 package com.andrius.notesappdemo.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,13 +8,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.andrius.notesappdemo.MainActivity
 import com.andrius.notesappdemo.NotesViewModel
 import com.andrius.notesappdemo.R
 import com.andrius.notesappdemo.models.Note
 import kotlinx.android.synthetic.main.fragment_newnote.*
 import kotlinx.android.synthetic.main.fragment_newnote.view.*
-import kotlinx.android.synthetic.main.list_item_note.*
 
 class NoteEditFragment : Fragment()
 {

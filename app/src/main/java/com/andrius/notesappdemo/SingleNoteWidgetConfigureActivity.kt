@@ -5,11 +5,7 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.recyclerview.widget.GridLayoutManager
-import com.andrius.notesappdemo.adapters.NotesAdapter
 import com.andrius.notesappdemo.models.Note
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.single_note_widget_configure.*
 
 /**
  * The configuration screen for the [SingleNoteWidget] AppWidget.

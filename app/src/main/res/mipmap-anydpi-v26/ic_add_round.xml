@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/ic_add_background" android:width="20dp" android:height="20dp"/>
-    <foreground android:drawable="@drawable/ic_add_foreground"/>
+    <background android:drawable="@color/ic_add_background" android:width="20dp" android:height="20dp"/>/>
 </adaptive-icon>
