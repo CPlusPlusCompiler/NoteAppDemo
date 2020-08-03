@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Back up your notes" android:id="@+id/menu_back_up" />
+    <item android:title="Restore notes from cloud" android:id="@+id/menu_restore" />
+</menu>

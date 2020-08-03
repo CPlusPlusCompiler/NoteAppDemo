@@ -57,8 +57,6 @@ class MainActivity : AppCompatActivity()
 
         storage = FirebaseStorage.getInstance()
 
-
-
         btnAdd.setOnClickListener()
         {
             val intent = Intent(this, NewNoteActivity::class.java)
