@@ -37,6 +37,5 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
-    implementation fileTree(dir: 'C:/Projektai/OdooApk/lib/xmlrpc-3.0b1/lib/', include: ['*.aar', '*.jar'], exclude: [])
     implementation 'org.apache.ws.commons:ws-commons-util:1.0.1'
 }

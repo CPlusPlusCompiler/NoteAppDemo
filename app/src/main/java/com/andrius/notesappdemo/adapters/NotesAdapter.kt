@@ -12,7 +12,7 @@ import com.andrius.notesappdemo.INote
 import com.andrius.notesappdemo.R
 import com.andrius.notesappdemo.models.Note
 import com.google.android.material.card.MaterialCardView
-import kotlinx.android.synthetic.main.list_item_note.view.*
+import kotlinx.android.synthetic.main.item_note.view.*
 import kotlin.reflect.KClass
 
 class NotesAdapter (var notes: MutableList<Note>, val callback: INote?, var context: Context) : RecyclerView.Adapter<MyViewHolder>()
@@ -25,7 +25,7 @@ class NotesAdapter (var notes: MutableList<Note>, val callback: INote?, var cont
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder
     {
-        val view = LayoutInflater.from(context).inflate(R.layout.list_item_note, parent, false)
+        val view = LayoutInflater.from(context).inflate(R.layout.item_note, parent, false)
 
         myViewHolder = MyViewHolder(view)
         myViewHolderObject = myViewHolder::class
