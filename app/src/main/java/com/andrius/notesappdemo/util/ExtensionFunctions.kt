@@ -1,5 +1,6 @@
 package com.andrius.notesappdemo.util
 
+
 import java.util.*
 
 fun String.toDate(): Date {

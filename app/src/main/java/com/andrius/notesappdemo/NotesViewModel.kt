@@ -4,9 +4,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.room.ColumnInfo
+import androidx.room.PrimaryKey
 import androidx.room.Room
 import com.andrius.notesappdemo.api.Database
 import com.andrius.notesappdemo.models.Note
+import com.andrius.notesappdemo.util.SortOrder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -17,7 +20,8 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
     private val database = Room.databaseBuilder(
         application.applicationContext,
         Database::class.java, Database.DATABASE_NAME
-    ).fallbackToDestructiveMigration().build()
+    ).fallbackToDestructiveMigration()
+        .build()
 
     val notesObservable = MutableLiveData<SortedMap<Long, Note>>()
 
@@ -27,7 +31,7 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
 
             val list = database.noteDao().getAll()
 
-            val notesMap = sortedMapOf<Long, Note>()
+            var notesMap = sortedMapOf<Long, Note>()
 
             list.forEach { note ->
                 notesMap[note.id] = note
@@ -47,6 +51,7 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
 
             withContext(Dispatchers.Main) {
                 // todo if adding was successful
+                note.id = id
                 notesObservable.value!![id] = note
                 // notify observers
                 notesObservable.value = notesObservable.value
@@ -66,14 +71,17 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun deleteNote(note: Note) {
+    fun deleteNotes(notes: List<Long>) {
 
-        viewModelScope.launch (Dispatchers.IO) {
-
-            database.noteDao().delete(note)
+        viewModelScope.launch(Dispatchers.IO) {
+            database.noteDao().delete(notes)
 
             withContext(Dispatchers.Main) {
-                notesObservable.value?.remove(note.id)
+
+                notes.forEach {
+                    notesObservable.value?.remove(it)
+                }
+
                 notesObservable.value = notesObservable.value
             }
         }

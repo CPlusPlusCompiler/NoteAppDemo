@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <receiver android:name=".SingleNoteWidget">
+        <receiver android:name=".fragments.SingleNoteWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -20,7 +20,7 @@
                 android:resource="@xml/single_note_widget_info" />
         </receiver>
 
-        <activity android:name=".SingleNoteWidgetConfigureActivity">
+        <activity android:name=".fragments.SingleNoteWidgetConfigureActivity">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>

@@ -9,11 +9,11 @@ interface NoteDao {
     @Query("SELECT * FROM Note")
     fun getAll(): List<Note>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert()
     fun insert(notes: Note): Long
 
-    @Delete
-    fun delete(note: Note)
+    @Query ("DELETE FROM Note where id in (:idList)")
+    fun delete(idList: List<Long>)
 
     @Update
     fun update(note: Note)

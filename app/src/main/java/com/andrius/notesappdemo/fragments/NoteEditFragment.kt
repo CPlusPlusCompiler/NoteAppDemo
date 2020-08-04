@@ -17,8 +17,7 @@ import com.google.android.material.button.MaterialButton
 import kotlinx.android.synthetic.main.fragment_newnote.view.*
 import java.util.*
 
-class NoteEditFragment : Fragment()
-{
+class NoteEditFragment : Fragment() {
     private lateinit var viewModel: NotesViewModel
     private var noteId: Long = 0
 
@@ -30,10 +29,15 @@ class NoteEditFragment : Fragment()
 
         viewModel = ViewModelProvider(requireActivity()).get(NotesViewModel::class.java)
         noteId = NoteEditFragmentArgs.fromBundle(requireArguments()).noteId
+
+        requireActivity().title = "Note editing"
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?)
-            : View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_newnote, container, false)
     }
 
@@ -43,35 +47,27 @@ class NoteEditFragment : Fragment()
         btnSave = view.btn_add_note
         etNote = view.et_note_text.editText!!
 
-
-        btnSave.setOnClickListener {
-
-
-        }
-
         viewModel.notesObservable.observe(viewLifecycleOwner, Observer { notesMap ->
-            if(notesMap.containsKey(noteId)) {
+            if (notesMap.containsKey(noteId)) {
 
                 etNote.setText(notesMap[noteId]!!.text)
+            }
 
-                btnSave.setOnClickListener {
+            btnSave.setOnClickListener {
 
-                    val lastModified = Date().toFormattedString()
+                val lastModified = Date().toFormattedString()
 
-                    if(noteId >= 0) {
-                        notesMap[noteId]!!.text = etNote.text.toString()
-                        notesMap[noteId]!!.lastModified = lastModified
-                        viewModel.updateNote(notesMap[noteId]!!)
-                    }
-                    else {
-
-                        viewModel.addNote(Note(null, etNote.text.toString(), 0, lastModified, lastModified))
-                    }
-
-                    findNavController().popBackStack()
-
-
+                if (noteId >= 0) {
+                    notesMap[noteId]!!.text = etNote.text.toString()
+                    notesMap[noteId]!!.lastModified = lastModified
+                    viewModel.updateNote(notesMap[noteId]!!)
+                } else {
+                    viewModel.addNote(
+                        Note(null, etNote.text.toString(), 0, lastModified, lastModified)
+                    )
                 }
+
+                findNavController().popBackStack()
             }
         })
     }

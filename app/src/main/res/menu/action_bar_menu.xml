@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <item android:title="Back up your notes" android:id="@+id/menu_back_up" />
-    <item android:title="Restore notes from cloud" android:id="@+id/menu_restore" />
+    <item android:id="@+id/menu_sort"
+        android:title="Sort by"
+        android:icon="@drawable/ic_sort"
+        app:showAsAction="always"
+        />
+
+    <item android:id="@+id/menu_delete_selected"
+        android:title="Remove selected"
+        android:icon="@drawable/ic_delete"
+        app:showAsAction="always"
+        android:visible="false"
+        tools:visible="true">
+
+    </item>
+
+<!--    <item android:title="Back up your notes" android:id="@+id/menu_back_up" />-->
+<!--    <item android:title="Restore notes from cloud" android:id="@+id/menu_restore" />-->
 </menu>

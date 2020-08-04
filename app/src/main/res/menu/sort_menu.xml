@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/menu_sort_by_content"
+        android:title="Sort by content" />
+
+    <item android:id="@+id/menu_sort_by_creation"
+        android:title="Sort by creation date"/>
+
+    <item android:id="@+id/menu_sort_by_modified"
+        android:title="Sort by last modified"/>
+
+</menu>
