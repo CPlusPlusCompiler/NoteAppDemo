@@ -135,7 +135,6 @@ class MainActivity : AppCompatActivity(), INotesSelection
         sortMenu.setOnMenuItemClickListener { menuItem ->
 
             when(menuItem.itemId) {
-
                 R.id.menu_sort_by_content -> {
                     notesOperationCallback.sortNotes(SortOrder.CONTENT)
                 }
@@ -145,7 +144,6 @@ class MainActivity : AppCompatActivity(), INotesSelection
                 R.id.menu_sort_by_modified -> {
                     notesOperationCallback.sortNotes(SortOrder.MODIFICATION_DATE)
                 }
-
             }
 
             true
