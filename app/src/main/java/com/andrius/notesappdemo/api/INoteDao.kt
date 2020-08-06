@@ -4,7 +4,7 @@ import androidx.room.*
 import com.andrius.notesappdemo.models.Note
 
 @Dao
-interface NoteDao {
+interface INoteDao {
 
     @Query("SELECT * FROM Note")
     fun getAll(): List<Note>

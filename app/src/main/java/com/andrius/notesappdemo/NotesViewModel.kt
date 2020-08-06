@@ -25,7 +25,7 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
 
     val notesObservable = MutableLiveData<SortedMap<Long, Note>>()
 
-    fun loadNotes() {
+    fun loadNotes(sortOrder: SortOrder) {
 
         viewModelScope.launch(Dispatchers.IO) {
 
@@ -34,14 +34,16 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
             var notesMap = sortedMapOf<Long, Note>()
 
             list.forEach { note ->
-                notesMap[note.id] = note
+                notesMap[note.id!!] = note
             }
 
             withContext(Dispatchers.Main) {
+
                 notesObservable.value = notesMap
             }
         }
     }
+
 
     fun addNote(note: Note) {
 
@@ -69,6 +71,15 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
                 notesObservable.value = notesObservable.value
             }
         }
+    }
+
+    fun sort() {
+
+        viewModelScope.launch(Dispatchers.Default) {
+
+
+        }
+
     }
 
     fun deleteNotes(notes: List<Long>) {

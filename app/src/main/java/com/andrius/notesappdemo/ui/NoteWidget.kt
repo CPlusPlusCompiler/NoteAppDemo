@@ -1,4 +1,4 @@
-package com.andrius.notesappdemo.fragments
+package com.andrius.notesappdemo.ui
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -8,15 +8,15 @@ import com.andrius.notesappdemo.R
 
 /**
  * Implementation of App Widget functionality.
- * App Widget Configuration implemented in [SingleNoteWidgetConfigureActivity]
+ * App Widget Configuration implemented in [NoteWidgetPickerActivity]
  */
-class SingleNoteWidget : AppWidgetProvider() {
+class NoteWidget : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray)
     {
         // There may be multiple widgets active, so update all of them
         for (appWidgetId in appWidgetIds) {
-            updateAppWidget(
+            updateAppWidget (
                 context,
                 appWidgetManager,
                 appWidgetId
@@ -28,37 +28,34 @@ class SingleNoteWidget : AppWidgetProvider() {
         // When the user deletes the widget, delete the preference associated with it.
         for (appWidgetId in appWidgetIds)
         {
-            SingleNoteWidgetConfigureActivity.deleteTitlePref(
+            NoteWidgetPickerActivity.deleteTitlePref(
                 context,
                 appWidgetId
             )
         }
     }
 
-    override fun onEnabled(context: Context)
-    {
+    override fun onEnabled(context: Context) {
         // Enter relevant functionality for when the first widget is created
     }
 
-    override fun onDisabled(context: Context)
-    {
+    override fun onDisabled(context: Context) {
         // Enter relevant functionality for when the last widget is disabled
     }
 
     companion object
     {
-
         internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int)
         {
 
             val widgetText =
-                SingleNoteWidgetConfigureActivity.loadTitlePref(
+                NoteWidgetPickerActivity.loadTitlePref(
                     context,
                     appWidgetId
                 )
             // Construct the RemoteViews object
             val views = RemoteViews(context.packageName,
-                R.layout.single_note_widget
+                R.layout.item_note_widget
             )
             views.setTextViewText(R.id.widget_text, widgetText)
 

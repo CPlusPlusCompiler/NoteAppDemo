@@ -1,5 +1,6 @@
-package com.andrius.notesappdemo.fragments
+package com.andrius.notesappdemo.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,18 +9,20 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.andrius.notesappdemo.MainActivity
-import com.andrius.notesappdemo.interfaces.INote
+import com.andrius.notesappdemo.interfaces.INoteAction
 import com.andrius.notesappdemo.NotesViewModel
 import com.andrius.notesappdemo.R
-import com.andrius.notesappdemo.adapters.NotesAdapter
+import com.andrius.notesappdemo.interfaces.INoteClick
+import com.andrius.notesappdemo.ui.adapters.NotesAdapter
 import com.andrius.notesappdemo.interfaces.INotesOperation
 import com.andrius.notesappdemo.interfaces.INotesSelection
 import com.andrius.notesappdemo.models.Note
 import com.andrius.notesappdemo.util.SortOrder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_notes.*
 import kotlinx.android.synthetic.main.fragment_notes.view.*
 
@@ -28,7 +31,9 @@ class NotesListFragment: Fragment(), INotesOperation {
     private lateinit var viewModel: NotesViewModel
     private lateinit var notesSelectionCallback: INotesSelection
     private var isSelectionOn = false
+    private lateinit var btnAdd: FloatingActionButton
     private lateinit var rvNotes: RecyclerView
+    private var spanCount = 2
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -44,11 +49,13 @@ class NotesListFragment: Fragment(), INotesOperation {
         viewModel = ViewModelProvider(requireActivity()).get(NotesViewModel::class.java)
 
         if(viewModel.notesObservable.value.isNullOrEmpty())
-            viewModel.loadNotes()
+            viewModel.loadNotes(SortOrder.MODIFICATION_DATE)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
+
+        requireActivity().title = resources.getString(R.string.title_notes)
         return inflater.inflate(R.layout.fragment_notes, container, false)
     }
 
@@ -56,8 +63,9 @@ class NotesListFragment: Fragment(), INotesOperation {
         super.onViewCreated(view, savedInstanceState)
 
         rvNotes = view.rv_notes
+        btnAdd = view.btn_add
 
-        btn_add.setOnClickListener {
+        btnAdd.setOnClickListener {
             findNavController().navigate (
                 NotesListFragmentDirections.actionNotesListFragmentToNewNoteFragment(-1))
         }
@@ -68,9 +76,15 @@ class NotesListFragment: Fragment(), INotesOperation {
     }
 
     fun initRecyclerView(notes: MutableList<Note>) {
-        val layoutManager = GridLayoutManager(requireContext(), 2)
+        val layoutManager = GridLayoutManager(requireContext(), spanCount)
         rvNotes.layoutManager = layoutManager
-        rvNotes.adapter = NotesAdapter(notes, notesListener, requireContext())
+        rvNotes.adapter = NotesAdapter(
+            notes,
+            Note.ViewType.IN_APP,
+            noteClickListener,
+            noteActionListener,
+            requireContext()
+        )
         registerForContextMenu(rvNotes)
     }
 
@@ -79,25 +93,36 @@ class NotesListFragment: Fragment(), INotesOperation {
         rv_notes.adapter = null
     }
 
-    val notesListener = object: INote {
+    private val noteActionListener = object: INoteAction {
         override fun onDeletePressed(note: Note, position: Int) {
             viewModel.deleteNotes(listOf(note.id!!))
         }
 
         override fun onEditPressed(note: Note, position: Int) {
-
-            val noteId: Long = if(note.id == null)
-                -1
-            else
-                note.id!!
-
-            findNavController().navigate (
-                NotesListFragmentDirections.actionNotesListFragmentToNewNoteFragment(noteId)
-            )
+            handleEditPressed(note, position)
         }
+    }
 
+    fun handleEditPressed(note: Note, position: Int) {
+        val noteId: Long = if(note.id == null)
+            -1
+        else
+            note.id!!
+
+        val extras = FragmentNavigatorExtras (
+            rvNotes.layoutManager!!.findViewByPosition(position)!! to "editView"
+        )
+
+        findNavController().navigate (
+            NotesListFragmentDirections.actionNotesListFragmentToNewNoteFragment(noteId), extras
+        )
+    }
+
+    private val noteClickListener = object:  INoteClick {
+        @SuppressLint("RestrictedApi")
         override fun onLongClicked(note: Note, position: Int) {
             isSelectionOn = true
+            btnAdd.visibility = View.GONE
             notesSelectionCallback.startSelection()
         }
 
@@ -111,11 +136,13 @@ class NotesListFragment: Fragment(), INotesOperation {
 
                 if(!adapter.isAnySelected()) {
                     isSelectionOn = false
+                    btnAdd.visibility = View.VISIBLE
                     notesSelectionCallback.stopSelection()
                 }
             }
-            else
-                onEditPressed(note, position)
+            else {
+                handleEditPressed(note, position)
+            }
         }
     }
 

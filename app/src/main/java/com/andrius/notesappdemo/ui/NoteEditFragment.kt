@@ -1,6 +1,7 @@
-package com.andrius.notesappdemo.fragments
+package com.andrius.notesappdemo.ui
 
 import android.os.Bundle
+import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +14,7 @@ import com.andrius.notesappdemo.NotesViewModel
 import com.andrius.notesappdemo.R
 import com.andrius.notesappdemo.models.Note
 import com.andrius.notesappdemo.util.toFormattedString
-import com.google.android.material.button.MaterialButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_newnote.view.*
 import java.util.*
 
@@ -21,11 +22,14 @@ class NoteEditFragment : Fragment() {
     private lateinit var viewModel: NotesViewModel
     private var noteId: Long = 0
 
-    private lateinit var btnSave: MaterialButton
+    private lateinit var btnSave: FloatingActionButton
     private lateinit var etNote: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        sharedElementEnterTransition =
+            TransitionInflater.from(context).inflateTransition(android.R.transition.move)
 
         viewModel = ViewModelProvider(requireActivity()).get(NotesViewModel::class.java)
         noteId = NoteEditFragmentArgs.fromBundle(requireArguments()).noteId
@@ -58,12 +62,15 @@ class NoteEditFragment : Fragment() {
                 val lastModified = Date().toFormattedString()
 
                 if (noteId >= 0) {
-                    notesMap[noteId]!!.text = etNote.text.toString()
-                    notesMap[noteId]!!.lastModified = lastModified
-                    viewModel.updateNote(notesMap[noteId]!!)
+                    val note = notesMap[noteId]!!
+                    note.text = etNote.text.toString()
+                    note.lastModified = lastModified
+                    viewModel.updateNote(note)
                 } else {
                     viewModel.addNote(
-                        Note(null, etNote.text.toString(), 0, lastModified, lastModified)
+                        Note(null, etNote.text.toString(),
+                            0, lastModified, lastModified,
+                        resources.getColor(R.color.colorPrimary))
                     )
                 }
 

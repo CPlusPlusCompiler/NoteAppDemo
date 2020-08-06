@@ -1,4 +1,4 @@
-package com.andrius.notesappdemo.fragments
+package com.andrius.notesappdemo.ui
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
@@ -11,17 +11,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.andrius.notesappdemo.NotesViewModel
 import com.andrius.notesappdemo.R
-import com.andrius.notesappdemo.adapters.NotesAdapter
-import com.andrius.notesappdemo.interfaces.INote
-import com.andrius.notesappdemo.interfaces.INotesOperation
-import com.andrius.notesappdemo.interfaces.INotesSelection
+import com.andrius.notesappdemo.ui.adapters.NotesAdapter
+import com.andrius.notesappdemo.interfaces.INoteAction
+import com.andrius.notesappdemo.interfaces.INoteClick
 import com.andrius.notesappdemo.models.Note
-import kotlinx.android.synthetic.main.single_note_widget_configure.*
+import com.andrius.notesappdemo.util.SortOrder
+import kotlinx.android.synthetic.main.activity_note_widget_picker.*
 
 /**
- * The configuration screen for the [SingleNoteWidget] AppWidget.
+ * The configuration screen for the [NoteWidget] AppWidget.
  */
-class SingleNoteWidgetConfigureActivity : AppCompatActivity()
+class NoteWidgetPickerActivity : AppCompatActivity()
 {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     private lateinit var viewModel: NotesViewModel
@@ -34,7 +34,7 @@ class SingleNoteWidgetConfigureActivity : AppCompatActivity()
         // out of the widget placement if the user presses the back button.
         setResult(Activity.RESULT_CANCELED)
 
-        setContentView(R.layout.single_note_widget_configure)
+        setContentView(R.layout.activity_note_widget_picker)
 
         viewModel = ViewModelProvider(this).get(NotesViewModel::class.java)
 
@@ -51,7 +51,7 @@ class SingleNoteWidgetConfigureActivity : AppCompatActivity()
             return
         }
 
-        viewModel.loadNotes()
+        viewModel.loadNotes(SortOrder.CONTENT)
 
         viewModel.notesObservable.observe(this, Observer {
             initRecyclerView(it.values.toList())
@@ -60,16 +60,18 @@ class SingleNoteWidgetConfigureActivity : AppCompatActivity()
 
     fun initRecyclerView(notes: List<Note>) {
 
-        rv_notes.adapter = NotesAdapter(notes as MutableList<Note>, noteListener, baseContext)
-        rv_notes.layoutManager = GridLayoutManager(baseContext, 2)
+        rv_notes.adapter = NotesAdapter(
+            notes as MutableList<Note>,
+            Note.ViewType.WIDGET,
+            noteListener, null,
+            applicationContext
+        )
+        rv_notes.layoutManager = GridLayoutManager(applicationContext, 2)
 
     }
 
     // todo make another interface, jesus
-    private val noteListener = object: INote {
-        override fun onDeletePressed(note: Note, position: Int) { }
-
-        override fun onEditPressed(note: Note, position: Int) { }
+    private val noteListener = object: INoteClick {
 
         override fun onLongClicked(note: Note, position: Int) { }
 
@@ -81,7 +83,7 @@ class SingleNoteWidgetConfigureActivity : AppCompatActivity()
 
     fun selectNote(note: Note)
     {
-        val context = this@SingleNoteWidgetConfigureActivity
+        val context = this@NoteWidgetPickerActivity
 
         // When the button is clicked, store the string locally
 
@@ -93,7 +95,11 @@ class SingleNoteWidgetConfigureActivity : AppCompatActivity()
 
         // It is the responsibility of the configuration activity to update the app widget
         val appWidgetManager = AppWidgetManager.getInstance(context)
-        SingleNoteWidget.updateAppWidget(context, appWidgetManager, appWidgetId)
+        NoteWidget.updateAppWidget(
+            context,
+            appWidgetManager,
+            appWidgetId
+        )
 
         // Make sure we pass back the original appWidgetId
         val intent = Intent()

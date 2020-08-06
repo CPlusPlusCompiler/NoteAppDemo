@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "473292849849",
+    "firebase_url": "https://notesappdemo.firebaseio.com",
+    "project_id": "notesappdemo",
+    "storage_bucket": "notesappdemo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:473292849849:android:530fded8899e959e5b9168",
+        "android_client_info": {
+          "package_name": "com.andrius.notesappdemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "473292849849-279470b5u3tl7ur44i3hd6v74qo4l3bq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.andrius.notesappdemo",
+            "certificate_hash": "42a182ac0a7f58afa154a0f905caf6ac14256b93"
+          }
+        },
+        {
+          "client_id": "473292849849-aad5hhikhpa5ki8k7rbnk5efi68m6iuj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.andrius.notesappdemo",
+            "certificate_hash": "edb5196546411726dbbc5119c0866eb3e47686a2"
+          }
+        },
+        {
+          "client_id": "473292849849-h73gl6vmlmk12t94tvqkl2t9ca6knjjd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5i474U7h0z0BzrWOpiE6JCRVXkOBOGqo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "473292849849-h73gl6vmlmk12t94tvqkl2t9ca6knjjd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

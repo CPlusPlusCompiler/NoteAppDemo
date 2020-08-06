@@ -1,4 +1,4 @@
-package com.andrius.notesappdemo.adapters
+package com.andrius.notesappdemo.ui.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -6,66 +6,73 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupMenu
+import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.andrius.notesappdemo.interfaces.INote
+import com.andrius.notesappdemo.interfaces.INoteAction
 import com.andrius.notesappdemo.R
+import com.andrius.notesappdemo.interfaces.INoteClick
 import com.andrius.notesappdemo.models.Note
 import com.andrius.notesappdemo.util.SortOrder
 import com.andrius.notesappdemo.util.toDate
-import com.google.android.material.card.MaterialCardView
 import kotlinx.android.synthetic.main.item_note.view.*
+import kotlinx.android.synthetic.main.item_note_widget.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.reflect.KClass
 
-class NotesAdapter (var notes: MutableList<Note>, val callback: INote?, var context: Context) : RecyclerView.Adapter<MyViewHolder>()
-{
-    var widgetEnabled: Boolean = false
-    lateinit var clickListener: (Note) -> Unit
+class NotesAdapter(
+    private var notes: MutableList<Note>,
+    var noteType: Note.ViewType,
+    private val clickCallback: INoteClick?,
+    private val actionCallback: INoteAction?,
+    private var context: Context
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    lateinit var myViewHolder: MyViewHolder
-    lateinit var myViewHolderObject: KClass<out MyViewHolder>
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder
-    {
-        val view = LayoutInflater.from(context).inflate(R.layout.item_note, parent, false)
-
-        myViewHolder = MyViewHolder(view)
-        myViewHolderObject = myViewHolder::class
-
-        return myViewHolder
+        return  if (noteType == Note.ViewType.IN_APP)
+            MyViewHolder(
+                LayoutInflater.from(
+                    context
+                ).inflate(R.layout.item_note, parent, false)
+            )
+        else
+            WidgetViewHolder(
+                LayoutInflater.from(
+                    context
+                ).inflate(R.layout.item_note_widget, parent, false)
+            )
     }
 
     override fun getItemCount(): Int {
         return notes.size
     }
 
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
         val note = notes[position]
-        if(widgetEnabled) {
-            holder.setDataForWidget(note, position, clickListener)
-        }
-        else {
+
+        if (holder is MyViewHolder) {
 
             holder.tvText.text = note.text
+            holder.tvLastModified.text = note.lastModified
 
             holder.clNote.setOnLongClickListener {
-                callback?.onLongClicked(note, position)
+                clickCallback?.onLongClicked(note, position)
                 true
             }
 
-            holder.imgSelected.visibility = if(note.isSelected)
+            holder.imgSelected.visibility = if (note.isSelected)
                 View.VISIBLE
             else
                 View.GONE
 
             holder.clNote.setOnClickListener {
-                callback?.onClicked(note, position)
+                clickCallback?.onClicked(note, position)
             }
 
             // set up menu
@@ -79,52 +86,39 @@ class NotesAdapter (var notes: MutableList<Note>, val callback: INote?, var cont
 
             menu.setOnMenuItemClickListener { menuItem ->
 
-                when(menuItem.itemId) {
+                when (menuItem.itemId) {
                     R.id.option_delete -> {
-                        callback?.onDeletePressed(note, position)
+                        actionCallback?.onDeletePressed(note, position)
                     }
                     R.id.option_edit -> {
-                        callback?.onEditPressed(note, position)
+                        actionCallback?.onEditPressed(note, position)
                     }
-                    else -> {}
-
+                    else -> { }
                 }
 
                 true
             }
         }
+        else if (holder is WidgetViewHolder) {
+
+            holder.tvText.text = note.text
+            note.sequence = position
+
+            holder.rlNote.setOnClickListener {
+                clickCallback?.onClicked(note, position)
+            }
+        }
+
     }
 
     fun isAnySelected(): Boolean {
 
         notes.forEach {
-            if(it.isSelected)
+            if (it.isSelected)
                 return true
         }
 
         return false
-    }
-
-    fun deleteSelectedNotes(): List<Long> {
-
-        val removedIds = mutableListOf<Long>()
-
-        // iterator is used because otherwise ConcurrentModificationException
-        // will be thrown
-        val iterator = notes.iterator()
-
-        while(iterator.hasNext()) {
-            val note = iterator.next()
-
-            if(note.isSelected) {
-                removedIds.add(note.id!!)
-                iterator.remove()
-            }
-        }
-
-        notifyDataSetChanged()
-
-        return removedIds
     }
 
     fun getSelectedNoteIds(): List<Long> {
@@ -132,17 +126,18 @@ class NotesAdapter (var notes: MutableList<Note>, val callback: INote?, var cont
         val selectedIds = mutableListOf<Long>()
 
         notes.forEach {
-            if(it.isSelected)
+            if (it.isSelected)
                 selectedIds.add(it.id!!)
         }
 
         return selectedIds
     }
 
+    @Deprecated("sort the data, fool")
     fun sort(sortOrder: SortOrder) {
 
         CoroutineScope(Dispatchers.Default).launch {
-            when(sortOrder) {
+            when (sortOrder) {
                 SortOrder.MODIFICATION_DATE ->
                     notes.sortBy { it.lastModified.toDate() }
                 SortOrder.CREATION_DATE ->
@@ -159,22 +154,26 @@ class NotesAdapter (var notes: MutableList<Note>, val callback: INote?, var cont
     }
 }
 
-open class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-{
-    lateinit var currentNote: Note
+open class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
 
     var tvText: TextView = itemView.tv_note_text
-    var mcvNote: MaterialCardView = itemView.mcv_note
+    var mcvNote: CardView = itemView.mcv_note
     var clNote: ConstraintLayout = itemView.cl_note
     var imgSelected: ImageView = itemView.img_selected
+    var tvLastModified: TextView = itemView.tv_last_modified
+}
 
-    fun setDataForWidget(note: Note?, position: Int, clickListener: (Note) -> Unit) {
-        currentNote = note!!
-        itemView.tv_note_text.text = note.text
-        note.sequence = position
+open class WidgetViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    var tvText: TextView = itemView.widget_text
+    var rlNote: RelativeLayout = itemView.rl_note
 
-        itemView.setOnClickListener{clickListener(note)}
+    init {
+
+
     }
+
+
 }
 
 
