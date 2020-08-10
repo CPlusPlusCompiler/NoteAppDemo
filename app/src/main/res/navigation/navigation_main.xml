@@ -23,4 +23,8 @@
             android:name="noteId"
             app:argType="long" />
     </fragment>
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="com.andrius.notesappdemo.ui.AboutFragment"
+        android:label="AboutFragment" />
 </navigation>

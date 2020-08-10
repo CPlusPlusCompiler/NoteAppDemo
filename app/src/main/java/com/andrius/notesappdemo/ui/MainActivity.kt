@@ -1,6 +1,7 @@
 package com.andrius.notesappdemo.ui
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -17,6 +18,7 @@ import com.andrius.notesappdemo.interfaces.INotesOperation
 import com.andrius.notesappdemo.interfaces.INotesSelection
 import com.andrius.notesappdemo.util.SortOrder
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 
 
@@ -28,6 +30,7 @@ class MainActivity : AppCompatActivity(), INotesSelection
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var toolbar: Toolbar
     private lateinit var appBarLayout: AppBarLayout
+    private lateinit var navController: NavController           // todo will be needed later
 
     fun setNoteDeletionCallback(callback: INotesOperation) {
         notesOperationCallback = callback
@@ -39,14 +42,16 @@ class MainActivity : AppCompatActivity(), INotesSelection
         setContentView(R.layout.activity_main)
         ogTitle = resources.getString(R.string.title_notes)
 
-        val navController = findNavController(R.id.nav_host_fragment)
-
+        navController = findNavController(R.id.nav_host_fragment)
         navController.addOnDestinationChangedListener(destinationChangedListener)
 
-        findViewById<NavigationView>(R.id.nav_drawer)
-            .setupWithNavController(navController)
+        val drawerNavView = findViewById<NavigationView>(R.id.nav_drawer)
+        drawerNavView.setupWithNavController(navController)
+
+        drawerNavView.setNavigationItemSelectedListener(navItemSelectedListener)
 
         drawerLayout = findViewById(R.id.drawer_layout)
+
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         appBarLayout = findViewById(R.id.app_bar_layout)
@@ -65,22 +70,40 @@ class MainActivity : AppCompatActivity(), INotesSelection
         title = ogTitle
     }
 
+    private val navItemSelectedListener = NavigationView.OnNavigationItemSelectedListener { menuItem ->
+
+        drawerLayout.closeDrawer(Gravity.LEFT)
+
+        when(menuItem.itemId) {
+            R.id.menu_about -> {
+                navController.navigate(R.id.aboutFragment)
+
+            }
+            R.id.menu_settings -> {
+
+                MaterialAlertDialogBuilder(this)
+                    .setMessage(R.string.not_implemented)
+                    .setPositiveButton("Ok", null)
+                    .show()
+            }
+        }
+
+        true
+    }
+
     private val destinationChangedListener =
         NavController.OnDestinationChangedListener { controller, destination, arguments ->
 
             val sortItem = menu?.findItem(R.id.menu_sort)
 
             when(destination.id) {
-
                 R.id.notesListFragment -> {
                     sortItem?.isVisible = true
                 }
                 R.id.newNoteFragment -> {
                     sortItem?.isVisible = false
                 }
-
             }
-
         }
 
     override fun startSelection() {
