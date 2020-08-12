@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.andrius.notesappdemo.R
@@ -22,8 +23,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 
 
-class MainActivity : AppCompatActivity(), INotesSelection
+class MainActivity : AppCompatActivity(), INotesSelection, IMenuListener
 {
+    private lateinit var drawerNavView: NavigationView
     private var menu: Menu? = null
     private var ogTitle = ""//
     private lateinit var notesOperationCallback: INotesOperation
@@ -42,14 +44,12 @@ class MainActivity : AppCompatActivity(), INotesSelection
         setContentView(R.layout.activity_main)
         ogTitle = resources.getString(R.string.title_notes)
 
+        drawerNavView = findViewById(R.id.nav_drawer)
         navController = findNavController(R.id.nav_host_fragment)
         navController.addOnDestinationChangedListener(destinationChangedListener)
 
-        val drawerNavView = findViewById<NavigationView>(R.id.nav_drawer)
         drawerNavView.setupWithNavController(navController)
-
         drawerNavView.setNavigationItemSelectedListener(navItemSelectedListener)
-
         drawerLayout = findViewById(R.id.drawer_layout)
 
         toolbar = findViewById(R.id.toolbar)
@@ -75,16 +75,18 @@ class MainActivity : AppCompatActivity(), INotesSelection
         drawerLayout.closeDrawer(Gravity.LEFT)
 
         when(menuItem.itemId) {
-            R.id.menu_about -> {
+            R.id.drawer_about -> {
                 navController.navigate(R.id.aboutFragment)
-
             }
-            R.id.menu_settings -> {
+            R.id.drawer_settings -> {
 
                 MaterialAlertDialogBuilder(this)
                     .setMessage(R.string.not_implemented)
                     .setPositiveButton("Ok", null)
                     .show()
+            }
+            R.id.drawer_notes -> {
+                navController.navigate(R.id.notesListFragment)
             }
         }
 
@@ -93,15 +95,20 @@ class MainActivity : AppCompatActivity(), INotesSelection
 
     private val destinationChangedListener =
         NavController.OnDestinationChangedListener { controller, destination, arguments ->
-
             val sortItem = menu?.findItem(R.id.menu_sort)
+            val notesMenuItem = drawerNavView.menu.findItem(R.id.drawer_notes)
 
             when(destination.id) {
                 R.id.notesListFragment -> {
+                    notesMenuItem.isVisible = false
                     sortItem?.isVisible = true
                 }
                 R.id.newNoteFragment -> {
                     sortItem?.isVisible = false
+                }
+                R.id.aboutFragment -> {
+                    notesMenuItem.isVisible = true
+                    drawerNavView.menu.findItem(R.id.drawer_notes).isVisible = true
                 }
             }
         }
@@ -171,6 +178,14 @@ class MainActivity : AppCompatActivity(), INotesSelection
 
             true
         }
+    }
+
+    override fun hideMenuItems() {
+        menu?.findItem(R.id.menu_sort)?.isVisible = false
+    }
+
+    override fun showMenuItems() {
+        menu?.findItem(R.id.menu_sort)?.isVisible = false
     }
 
 }

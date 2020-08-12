@@ -5,7 +5,7 @@
 
     <fragment
         android:id="@+id/notesListFragment"
-        android:name="com.andrius.notesappdemo.ui.NotesListFragment"
+        android:name="com.andrius.notesappdemo.ui.fragments.NotesListFragment"
         android:label="NotesListFragment" >
         <action
             android:id="@+id/action_notesListFragment_to_newNoteFragment"
@@ -17,7 +17,7 @@
     </fragment>
     <fragment
         android:id="@+id/newNoteFragment"
-        android:name="com.andrius.notesappdemo.ui.NoteEditFragment"
+        android:name="com.andrius.notesappdemo.ui.fragments.NoteEditFragment"
         android:label="NewNoteFragment" >
         <argument
             android:name="noteId"
@@ -25,6 +25,6 @@
     </fragment>
     <fragment
         android:id="@+id/aboutFragment"
-        android:name="com.andrius.notesappdemo.ui.AboutFragment"
+        android:name="com.andrius.notesappdemo.ui.fragments.AboutFragment"
         android:label="AboutFragment" />
 </navigation>

@@ -1,4 +1,4 @@
-package com.andrius.notesappdemo.ui
+package com.andrius.notesappdemo.ui.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -21,6 +21,7 @@ import com.andrius.notesappdemo.ui.adapters.NotesAdapter
 import com.andrius.notesappdemo.interfaces.INotesOperation
 import com.andrius.notesappdemo.interfaces.INotesSelection
 import com.andrius.notesappdemo.models.Note
+import com.andrius.notesappdemo.ui.MainActivity
 import com.andrius.notesappdemo.util.SortOrder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_notes.*
@@ -67,7 +68,10 @@ class NotesListFragment: Fragment(), INotesOperation {
 
         btnAdd.setOnClickListener {
             findNavController().navigate (
-                NotesListFragmentDirections.actionNotesListFragmentToNewNoteFragment(-1))
+                NotesListFragmentDirections.actionNotesListFragmentToNewNoteFragment(
+                    -1
+                )
+            )
         }
 
         viewModel.notesObservable.observe(viewLifecycleOwner, Observer {
@@ -114,7 +118,9 @@ class NotesListFragment: Fragment(), INotesOperation {
         )
 
         findNavController().navigate (
-            NotesListFragmentDirections.actionNotesListFragmentToNewNoteFragment(noteId), extras
+            NotesListFragmentDirections.actionNotesListFragmentToNewNoteFragment(
+                noteId
+            ), extras
         )
     }
 

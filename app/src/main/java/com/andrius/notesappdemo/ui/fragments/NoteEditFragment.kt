@@ -1,4 +1,4 @@
-package com.andrius.notesappdemo.ui
+package com.andrius.notesappdemo.ui.fragments
 
 import android.os.Bundle
 import android.transition.TransitionInflater
@@ -32,7 +32,9 @@ class NoteEditFragment : Fragment() {
             TransitionInflater.from(context).inflateTransition(android.R.transition.move)
 
         viewModel = ViewModelProvider(requireActivity()).get(NotesViewModel::class.java)
-        noteId = NoteEditFragmentArgs.fromBundle(requireArguments()).noteId
+        noteId = NoteEditFragmentArgs.fromBundle(
+            requireArguments()
+        ).noteId
 
         requireActivity().title = "Note editing"
     }
